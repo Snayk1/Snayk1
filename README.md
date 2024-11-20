@@ -1,17 +1,23 @@
-#include <Windows.h>
-#include <uuid/uuid.h>
+using System;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
-int main() {
-  // Detecção de hardware
-  DWORD dwHardwareId;
-  GetSystemFirmwareTable(&dwHardwareId);
+class HWIDChanger {
+  [DllImport("kernel32.dll")]
+  static extern bool GetSystemFirmwareTable(out uint hardwareId);
 
-  // Geração de novo HWID
-  uuid_t novoHWID;
-  uuid_generate_random(novoHWID);
+  [DllImport("kernel32.dll")]
+  static extern bool SetSystemFirmwareTable(uint hardwareId);
 
-  // Aplicação do novo HWID
-  SetSystemFirmwareTable(novoHWID);
+  public static void Main() {
+    // Detecção de hardware
+    uint hardwareId;
+    GetSystemFirmwareTable(out hardwareId);
 
-  return 0;
+    // Geração de novo HWID
+    Guid novoHWID = Guid.NewGuid();
+
+    // Aplicação do novo HWID
+    SetSystemFirmwareTable((uint)novoHWID.GetHashCode());
+  }
 }
